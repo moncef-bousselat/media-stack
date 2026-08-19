@@ -346,6 +346,25 @@ services:
       start_period: 90s
     restart: unless-stopped
 
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf@sha256:180acad33d69c99ed208676465d8edcb268fa46967735579a7810859885b1a8e  # v2.36.0 pinned 2026-08-20
+    container_name: audiobookshelf
+    depends_on:
+      init-data:
+        condition: service_completed_successfully
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - PORT=13378
+    volumes:
+      - ${CONFIG}/audiobookshelf/config:/config
+      - ${CONFIG}/audiobookshelf/metadata:/metadata
+      - ${DATA}/media/books:/books:ro
+    ports:
+      - 13378:13378
+    restart: unless-stopped
+
   homepage:
     image: ghcr.io/gethomepage/homepage@sha256:a0b71c8e757298d02560186bab9fbe3fc2d375c523a62cc1019177b37e48aa28  # v1.13.2 pinned 2026-08-02
     container_name: homepage
