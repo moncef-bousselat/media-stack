@@ -6,6 +6,7 @@ services:
       - ${DATA}:/data
     command: >
       sh -c "
+      test -f /data/.mounted || { echo 'FATAL: /data/.mounted not found - media filesystem is not mounted, refusing to continue'; exit 1; } &&
       for d in movies tv anime music books books/ebooks books/audiobooks; do
         mkdir -p /data/torrents/$$d /data/media/$$d;
       done &&
@@ -43,6 +44,7 @@ services:
       - 8686:8686          # lidarr
       - 8789:8789          # chaptarr
       - 11011:11011        # cleanuparr
+      - 8787:8787          # bookshelf
       - ${VPN_PORT}:${VPN_PORT}
       - ${VPN_PORT}:${VPN_PORT}/udp
     volumes:
@@ -64,6 +66,12 @@ services:
     volumes:
       - ${CONFIG}/qbittorrent:/config
       - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/torrents"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     restart: unless-stopped
   qbit-manage:
     image: ghcr.io/stuffanthings/qbit_manage@sha256:a89ac290e52763f41459f81b88ac94ac523b49c9b05bf15936597e4513554983  # 4.10.0 pinned 2026-08-02
@@ -84,6 +92,12 @@ services:
     volumes:
       - ${CONFIG}/qbit-manage:/config
       - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/torrents"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     restart: on-failure:2
   prowlarr:
     image: lscr.io/linuxserver/prowlarr@sha256:2f3d31307beba3ba2dd226d191f5f5c14ee3b4d8b49277c64683f5ed97083179  # 2.5.2.5491-ls155 pinned 2026-08-02
@@ -113,6 +127,12 @@ services:
     volumes:
       - ${CONFIG}/radarr:/config
       - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/movies"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     restart: unless-stopped
   sonarr:
     image: lscr.io/linuxserver/sonarr@sha256:24acea2956a0ccb11f103877d9f4f8576600fb34bff34820ed749c2256dab89f  # 4.0.19.2979-ls320 pinned 2026-08-02
@@ -128,6 +148,12 @@ services:
     volumes:
       - ${CONFIG}/sonarr:/config
       - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/tv"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     restart: unless-stopped
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr@sha256:139dfee1c6f89249c8d665d1333a42e8ec74ec0a86bc6bb1c8461e10d3a66a47  # v3.5.0 pinned 2026-08-02
@@ -154,6 +180,12 @@ services:
     volumes:
       - ${CONFIG}/bazarr:/config
       - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     restart: unless-stopped
   jellyfin:
     image: lscr.io/linuxserver/jellyfin@sha256:bb8d372e35d5c4a6cb61d830a06f5b5846528315b97cf5d38b80eea1e430efa7  # 10.11.11ubu2404-ls42 pinned 2026-08-02
@@ -195,6 +227,12 @@ services:
     volumes:
       - ${CONFIG}/lidarr:/config
       - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/music"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     restart: unless-stopped
   navidrome:
     image: deluan/navidrome@sha256:9012939114fbb1bb641b81cf96dec5ded15f0aafefe8d47a511d7cb919658e40  # 0.63.2 pinned 2026-08-02
@@ -278,6 +316,34 @@ services:
     volumes:
       - ${CONFIG}/chaptarr:/config
       - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/books"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+
+  bookshelf:
+    image: ghcr.io/pennydreadful/bookshelf@sha256:388eecc94362580eae31ee0a454be6af516f8a311f8432a521c202fb475f4359  # hardcover pinned 2026-08-19
+    container_name: bookshelf
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG}/bookshelf:/config
+      - ${DATA}:/data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/books"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     restart: unless-stopped
 
   homepage:
@@ -287,9 +353,28 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - HOMEPAGE_ALLOWED_HOSTS=streaming.home.arpa,192.168.1.16:3000
+      - HOMEPAGE_ALLOWED_HOSTS=home.home.arpa,192.168.1.16:3000
     volumes:
       - ${CONFIG}/homepage:/app/config
     ports:
       - 3000:3000
     restart: unless-stopped
+
+  apprise:
+    image: caronc/apprise:latest
+    container_name: apprise
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config/apprise:/config
+    environment:
+      - APPRISE_STATEFUL_MODE=simple
+      - APPRISE_WORKER_COUNT=1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/status || exit 1"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+

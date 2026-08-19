@@ -58,7 +58,6 @@ settings:
   share_limits_filter_completed: true
   disable_qbt_default_share_limits: true
   tag_stalled_torrents: true
-
   share_limits_min_seeding_time_tag: MinSeedTimeNotReached
   share_limits_min_num_seeds_tag: MinSeedsNotMet
   share_limits_last_active_tag: LastActiveLimitNotReached
@@ -81,20 +80,23 @@ recyclebin:
   empty_after_x_days:
   save_torrents: false
   split_by_category: false
+
 webhooks:
-  error:
+  error: http://apprise:8000/notify/p1
   run_start:
   run_end:
   function:
+    rem_orphaned: http://apprise:8000/notify/p1
+    rem_unregistered: http://apprise:8000/notify/p1
+    cleanup_dirs: http://apprise:8000/notify/p2
+    tag_tracker_error: http://apprise:8000/notify/p2
+    cross_seed:
     recheck:
     cat_update:
     tag_update:
-    rem_unregistered:
-    tag_tracker_error:
-    rem_orphaned:
     tag_nohardlinks:
     share_limits:
-    cleanup_dirs:
+
 orphaned:
   empty_after_x_days: 14
   exclude_patterns:
