@@ -42,9 +42,7 @@ services:
       - 8989:8989          # sonarr
       - 6767:6767          # bazarr
       - 8686:8686          # lidarr
-      - 8789:8789          # chaptarr
       - 11011:11011        # cleanuparr
-      - 8787:8787          # bookshelf
       - ${VPN_PORT}:${VPN_PORT}
       - ${VPN_PORT}:${VPN_PORT}/udp
     volumes:
@@ -166,27 +164,27 @@ services:
       - LOG_LEVEL=info
       - TZ=${TZ}
     restart: unless-stopped
-  bazarr:
-    image: lscr.io/linuxserver/bazarr@sha256:ab401a0f361cfad328e444838b13d5b334b189d0f556fc91a3623eb581df36df  # v1.6.0-ls356 pinned 2026-08-02
-    container_name: bazarr
-    network_mode: "service:gluetun"
-    depends_on:
-      gluetun:
-        condition: service_healthy
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${CONFIG}/bazarr:/config
-      - ${DATA}:/data
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media"]
-      interval: 5m
-      timeout: 10s
-      retries: 3
-      start_period: 90s
-    restart: unless-stopped
+#  bazarr:
+#    image: lscr.io/linuxserver/bazarr@sha256:ab401a0f361cfad328e444838b13d5b334b189d0f556fc91a3623eb581df36df  # v1.6.0-ls356 pinned 2026-08-02
+#    container_name: bazarr
+#    network_mode: "service:gluetun"
+#    depends_on:
+#      gluetun:
+#        condition: service_healthy
+#    environment:
+#      - PUID=${PUID}
+#      - PGID=${PGID}
+#      - TZ=${TZ}
+#    volumes:
+#      - ${CONFIG}/bazarr:/config
+#      - ${DATA}:/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media"]
+#      interval: 5m
+#      timeout: 10s
+#      retries: 3
+#      start_period: 90s
+#    restart: unless-stopped
   jellyfin:
     image: lscr.io/linuxserver/jellyfin@sha256:bb8d372e35d5c4a6cb61d830a06f5b5846528315b97cf5d38b80eea1e430efa7  # 10.11.11ubu2404-ls42 pinned 2026-08-02
     container_name: jellyfin
@@ -213,44 +211,44 @@ services:
     ports:
       - 5055:5055
     restart: unless-stopped
-  lidarr:
-    image: lscr.io/linuxserver/lidarr@sha256:f60ee67694bc4a218efe0fb2dc0b0021d193ac5f15be2638d17ab4eeb6966946  # 3.1.0.4875-ls36 pinned 2026-08-02
-    container_name: lidarr
-    network_mode: "service:gluetun"
-    depends_on:
-      gluetun:
-        condition: service_healthy
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${CONFIG}/lidarr:/config
-      - ${DATA}:/data
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/music"]
-      interval: 5m
-      timeout: 10s
-      retries: 3
-      start_period: 90s
-    restart: unless-stopped
-  navidrome:
-    image: deluan/navidrome@sha256:9012939114fbb1bb641b81cf96dec5ded15f0aafefe8d47a511d7cb919658e40  # 0.63.2 pinned 2026-08-02
-    container_name: navidrome
-    depends_on:
-      init-data:
-        condition: service_completed_successfully
-    environment:
-      - ND_SCANSCHEDULE=1h
-      - ND_LOGLEVEL=info
-      - ND_MUSICFOLDER=/data/media/music
-      - TZ=${TZ}
-    volumes:
-      - ${CONFIG}/navidrome:/data
-      - ${DATA}/media/music:/data/media/music:ro
-    ports:
-      - 4533:4533
-    restart: unless-stopped
+#  lidarr:
+#    image: lscr.io/linuxserver/lidarr@sha256:f60ee67694bc4a218efe0fb2dc0b0021d193ac5f15be2638d17ab4eeb6966946  # 3.1.0.4875-ls36 pinned 2026-08-02
+#    container_name: lidarr
+#    network_mode: "service:gluetun"
+#    depends_on:
+#      gluetun:
+#        condition: service_healthy
+#    environment:
+#      - PUID=${PUID}
+#      - PGID=${PGID}
+#      - TZ=${TZ}
+#    volumes:
+#      - ${CONFIG}/lidarr:/config
+#      - ${DATA}:/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/music"]
+#      interval: 5m
+#      timeout: 10s
+#      retries: 3
+#      start_period: 90s
+#    restart: unless-stopped
+#  navidrome:
+#    image: deluan/navidrome@sha256:9012939114fbb1bb641b81cf96dec5ded15f0aafefe8d47a511d7cb919658e40  # 0.63.2 pinned 2026-08-02
+#    container_name: navidrome
+#    depends_on:
+#      init-data:
+#        condition: service_completed_successfully
+#    environment:
+#      - ND_SCANSCHEDULE=1h
+#      - ND_LOGLEVEL=info
+#      - ND_MUSICFOLDER=/data/media/music
+#      - TZ=${TZ}
+#    volumes:
+#      - ${CONFIG}/navidrome:/data
+#      - ${DATA}/media/music:/data/media/music:ro
+#    ports:
+#      - 4533:4533
+#    restart: unless-stopped
   dnsmasq:
     image: jpillora/dnsmasq@sha256:98b69ad825942089fb7c4b9153e3c5af0205eda3a103c691e30b1a13fd912830  # ? pinned 2026-08-02
     container_name: dnsmasq
@@ -300,69 +298,6 @@ services:
       - ${CONFIG}/maintainerr:/opt/data
     ports:
       - 6246:6246
-    restart: unless-stopped
-
-  chaptarr:
-    image: robertlordhood/chaptarr@sha256:cd5813b16d2d00c5e6d439cc53876b5c7a24f0693bfc7111d61f5afacdc5b055  # ? pinned 2026-08-02
-    container_name: chaptarr
-    network_mode: "service:gluetun"
-    depends_on:
-      gluetun:
-        condition: service_healthy
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${CONFIG}/chaptarr:/config
-      - ${DATA}:/data
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/books"]
-      interval: 5m
-      timeout: 10s
-      retries: 3
-      start_period: 90s
-    restart: unless-stopped
-
-  bookshelf:
-    image: ghcr.io/pennydreadful/bookshelf@sha256:388eecc94362580eae31ee0a454be6af516f8a311f8432a521c202fb475f4359  # hardcover pinned 2026-08-19
-    container_name: bookshelf
-    network_mode: "service:gluetun"
-    depends_on:
-      gluetun:
-        condition: service_healthy
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${CONFIG}/bookshelf:/config
-      - ${DATA}:/data
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /data/.mounted && test -w /data/media/books"]
-      interval: 5m
-      timeout: 10s
-      retries: 3
-      start_period: 90s
-    restart: unless-stopped
-
-  audiobookshelf:
-    image: ghcr.io/advplyr/audiobookshelf@sha256:180acad33d69c99ed208676465d8edcb268fa46967735579a7810859885b1a8e  # v2.36.0 pinned 2026-08-20
-    container_name: audiobookshelf
-    depends_on:
-      init-data:
-        condition: service_completed_successfully
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - PORT=13378
-    volumes:
-      - ${CONFIG}/audiobookshelf/config:/config
-      - ${CONFIG}/audiobookshelf/metadata:/metadata
-      - ${DATA}/media/books:/books:ro
-    ports:
-      - 13378:13378
     restart: unless-stopped
 
   homepage:

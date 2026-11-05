@@ -102,3 +102,5 @@ orphaned:
   exclude_patterns:
   max_orphaned_files_to_delete: 50
   min_file_age_minutes: 60
+cat:
+  torrents: /data/torrents/

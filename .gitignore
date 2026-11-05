@@ -13,3 +13,4 @@ config/qbit-manage/*
 !config/qbit-manage/config.yml
 *.save*
 *.bak
+*.bak*
