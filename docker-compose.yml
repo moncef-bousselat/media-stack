@@ -1,6 +1,6 @@
 services:
   init-data:
-    image: alpine:latest
+    image: alpine@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a  # latest pinned 2026-11-05
     container_name: init-data
     volumes:
       - ${DATA}:/data
@@ -15,7 +15,7 @@ services:
       "
     restart: "no"
   gluetun:
-    image: qmcgaw/gluetun:latest
+    image: qmcgaw/gluetun@sha256:4af0c804003481e100180e1f8d4d5e9c48163fedc0f88d061881b615aef9d183  # latest pinned 2026-11-05
     container_name: gluetun
     depends_on:
       init-data:
@@ -315,7 +315,7 @@ services:
     restart: unless-stopped
 
   apprise:
-    image: caronc/apprise:latest
+    image: caronc/apprise@sha256:6ae97e24b3447f85f725a03ba73c6dc3a5f4b99f4273ac126de2d9b5ed6205d5  # latest pinned 2026-11-05
     container_name: apprise
     restart: unless-stopped
     ports:
