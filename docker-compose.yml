@@ -198,6 +198,7 @@ services:
     volumes:
       - ${CONFIG}/jellyfin:/config
       - ${DATA}/media:/data/media:ro
+      - ${DATA}/transcodes:/transcodes
     ports:
       - 8096:8096
     restart: unless-stopped
